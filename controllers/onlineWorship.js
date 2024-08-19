@@ -1,12 +1,29 @@
 import OnlineWorship from '../models/onlineWorship.js'
 import { StatusCodes } from 'http-status-codes'
 import validator from 'validator'
+import moment from 'moment-timezone'
 
 // 匯出一個名為 'create' 的非同步函數，用於處理創建新的服務資源
 export const create = async (req, res) => {
   try {
     // 將上傳文件的路徑儲存到請求主體 (req.body) 的 image 屬性中
     req.body.image = req.file.path
+
+    // 假設你在 req.body 中有一個 date 屬性需要保持原始時區
+    if (req.body.date) {
+      // 直接使用 moment 將日期解析，並保持在台北標準時間
+      const date = moment.tz(req.body.date, 'Asia/Taipei')
+
+      if (date.isValid()) {
+        // 保持在台北標準時間，並以指定格式輸出，例如：'YYYY-MM-DD HH:mm:ss'
+        req.body.date = date.format('YYYY-MM-DD HH:mm:ss') // 這裡可以根據你的需求自定義格式
+      } else {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          success: false,
+          message: '無效的日期格式'
+        })
+      }
+    }
     // 使用 Service 模型創建新的服務資源，並將請求主體 (req.body) 的數據傳入
     const result = await OnlineWorship.create(req.body)
     // 如果創建成功，回應狀態碼 200 (OK)，並回傳成功訊息和結果
