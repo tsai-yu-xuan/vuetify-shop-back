@@ -1,4 +1,4 @@
-import Service from '../models/service.js'
+import OnlineWorship from '../models/onlineWorship.js'
 import { StatusCodes } from 'http-status-codes'
 import validator from 'validator'
 
@@ -8,7 +8,7 @@ export const create = async (req, res) => {
     // 將上傳文件的路徑儲存到請求主體 (req.body) 的 image 屬性中
     req.body.image = req.file.path
     // 使用 Service 模型創建新的服務資源，並將請求主體 (req.body) 的數據傳入
-    const result = await Service.create(req.body)
+    const result = await OnlineWorship.create(req.body)
     // 如果創建成功，回應狀態碼 200 (OK)，並回傳成功訊息和結果
     res.status(StatusCodes.OK).json({
       success: true,
@@ -50,7 +50,7 @@ export const getAll = async (req, res) => {
     const regex = new RegExp(req.query.search || '', 'i')
 
     // 查詢資料庫，根據搜尋條件及排序參數取得所有匹配的產品資料
-    const data = await Service
+    const data = await OnlineWorship
       .find({
         $or: [
           { name: regex },
@@ -60,7 +60,7 @@ export const getAll = async (req, res) => {
       .sort({ [sortBy]: sortOrder })
 
     // 計算所有產品的總數量
-    const total = await Service.estimatedDocumentCount()
+    const total = await OnlineWorship.estimatedDocumentCount()
 
     // 回應狀態碼 200 (OK)，並返回成功訊息和查詢結果
     res.status(StatusCodes.OK).json({
@@ -93,7 +93,7 @@ export const edit = async (req, res) => {
     // `findByIdAndUpdate` 方法會根據傳入的 ID 更新產品資料
     // `runValidators: true` 會在更新操作時執行模型的驗證
     // 如果找不到產品，`orFail` 方法會拋出一個 'NOT FOUND' 的錯誤
-    await Service.findByIdAndUpdate(req.params.id, req.body, { runValidators: true }).orFail(new Error('NOT FOUND'))
+    await OnlineWorship.findByIdAndUpdate(req.params.id, req.body, { runValidators: true }).orFail(new Error('NOT FOUND'))
     // 如果成功更新產品，回應狀態碼 200 (OK)，並返回成功訊息
     res.status(StatusCodes.OK).json({
       success: true,
@@ -104,7 +104,7 @@ export const edit = async (req, res) => {
     if (error.name === 'CastError' || error.message === 'ID') {
       res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: '服務項目 ID 格式錯誤'
+        message: '寶貝 ID 格式錯誤'
       })
     } else if (error.message === 'NOT FOUND') {
       res.status(StatusCodes.NOT_FOUND).json({
@@ -137,10 +137,10 @@ export const get = async (req, res) => {
     const regex = new RegExp(req.query.search || '', 'i')
 
     // 查找符合條件的產品數據
-    const data = await Service
+    const data = await OnlineWorship
       .find({
         // 僅查找已上架的產品
-        sell: true,
+        // sell: true,
         // 名稱或描述中包含搜索字串的產品
         $or: [
           { name: regex },
@@ -152,7 +152,7 @@ export const get = async (req, res) => {
       // obj.a --> 1
       .sort({ [sortBy]: sortOrder })
 
-    const total = await Service.countDocuments({ sell: true })
+    const total = await OnlineWorship.countDocuments({ sell: true })
     res.status(StatusCodes.OK).json({
       success: true,
       message: '',
@@ -177,7 +177,7 @@ export const getId = async (req, res) => {
     // 使用 Service 模型根據 ID 查找單個服務資料
     // `findById` 方法會根據傳入的 ID 查找相應的資料
     // 如果找不到資料，`orFail` 方法會拋出一個 'NOT FOUND' 的錯誤
-    const result = await Service.findById(req.params.id).orFail(new Error('NOT FOUND'))
+    const result = await OnlineWorship.findById(req.params.id).orFail(new Error('NOT FOUND'))
 
     // 如果成功找到資料，回應狀態碼 200 (OK)，並返回成功訊息與查詢結果
     res.status(StatusCodes.OK).json({
@@ -190,12 +190,12 @@ export const getId = async (req, res) => {
     if (error.name === 'CastError' || error.message === 'ID') {
       res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: '服務項目 ID 格式錯誤'
+        message: '寶貝 ID 格式錯誤'
       })
     } else if (error.message === 'NOT FOUND') {
       res.status(StatusCodes.NOT_FOUND).json({
         success: false,
-        message: '查無服務項目'
+        message: '查無寶貝資訊'
       })
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
