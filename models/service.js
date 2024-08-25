@@ -25,7 +25,7 @@ const schema = new Schema({
     type: String,
     required: [true, '服務項目分類必填'],
     enum: {
-      values: ['優惠專案', '個別火化', '團體火化', '紀念飾品區'],
+      values: ['優惠專案', '個別火化', '團體火化'],
       message: '服務項目分類錯誤'
     }
   },
